@@ -33,7 +33,7 @@ view : Model -> Html Msg
 view model =
   div [ class "content" ]
     [ h1 [] [ text "Photo Groove" ]
-    , button [ onClick { description = "ClickedSurpriseMe", data = "" } ]
+    , button [ onClick ClickedSurpriseMe ]
       [ text "Surprise Me!" ]
     , h3 [] [ text "ThumbnailSize:" ]
     , div [ id "choose-size" ]
@@ -46,12 +46,12 @@ view model =
 
 viewThumbnail : String -> Photo -> Html Msg
 viewThumbnail selectedUrl thumb =
-  img [ src (urlPrefix ++ thumb.url), classList [ ("selected", selectedUrl == thumb.url )], onClick {description = "ClickedPhoto", data = thumb.url } ] []
+  img [ src (urlPrefix ++ thumb.url), classList [ ("selected", selectedUrl == thumb.url )], onClick (ClickedPhoto thumb.url) ] []
 
 viewSizeChooser : ThumbnailSize -> Html Msg
 viewSizeChooser size =
   label []
-    [ input [ type_ "radio", name "size" ] []
+    [ input [ type_ "radio", name "size", onClick (ClickedSize size) ] []
     , text (sizeToString size)
     ]
 
@@ -82,8 +82,10 @@ type alias Model =
   , chosenSize : ThumbnailSize
   }
 
-type alias Msg =
-  { description : String, data : String}
+type Msg
+  = ClickedPhoto String
+  | ClickedSize ThumbnailSize
+  | ClickedSurpriseMe
 
 type ThumbnailSize
   = Small
@@ -94,10 +96,10 @@ type ThumbnailSize
 
 update : Msg -> Model -> Model
 update msg model =
-  case msg.description of
-    "ClickedPhoto" ->
-      { model | selectedUrl = msg.data }
-    "ClickedSurpriseMe" ->
+  case msg of
+    ClickedPhoto url ->
+      { model | selectedUrl = url }
+    ClickedSize size ->
+      { model | chosenSize = size}
+    ClickedSurpriseMe ->
       { model | selectedUrl = "2.jpeg"}
-    _ ->
-      model
